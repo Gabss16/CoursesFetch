@@ -2,61 +2,55 @@ import { useEffect, useState } from "react";
 import { url } from "../../utils/apiUrl";
 import { toast } from "react-hot-toast";
 
-//hook para separar la logica de obtencion de usuarios
+// Hook para manejar la lógica de obtención de cursos
 
-const useFetchUser = () => {
-  //state para almacenar los datos de los usuarios
-  const [dataUser, setDataUser] = useState([]);
+const useFetchCourse = () => {
+  // State para almacenar los cursos
+  const [dataCourse, setDataCourse] = useState([]);
 
-  //funcion para obtener los usuarios desde la API
-  //se usa useCallback para evitar que la funcion se vuelva a crear en cada renderizado
-
-  const getUsers = async () => {
+  // Obtener todos los cursos desde la API
+  const getCourses = async () => {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        toast.error("Failed to fetch users");
-        throw new Error("Failed to fetch users");
+        toast.error("No se pudieron obtener los cursos");
+        throw new Error("Failed to fetch courses");
       }
       const data = await response.json();
-      setDataUser(data);
+      setDataCourse(data);
     } catch (error) {
-      console.error("Error fetching users:", error);
-      toast.error("Error fetching users");
+      console.error("Error al obtener cursos:", error);
+      toast.error("Error al obtener cursos");
     }
   };
 
-  //funcion para obtener un usuario por su id
-  //se usa async/await para manejar la asincronía de la llamada a la API
-
-  const getUserById = async (id) => {
+  // Obtener un curso por su ID
+  const getCourseById = async (id) => {
     try {
       const response = await fetch(`${url}/${id}`);
       if (!response.ok) {
-        console.log("Failed to fetch user");
-        throw new Error("Failed to fetch user");
+        console.log("No se pudo obtener el curso");
+        throw new Error("Failed to fetch course");
       }
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error fetching user:", error);
-      console.log("Failed to fetch user");
+      console.error("Error al obtener curso:", error);
       return null;
     }
   };
 
-  //useEffect para llamar a getUsers cuando el componente se monta
+  // useEffect para cargar cursos al montar el componente
   useEffect(() => {
-    getUsers();
+    getCourses();
   }, []);
 
-  //retornar los datos y las funciones para ser usados en otros componentes
   return {
-    dataUser,
-    setDataUser,
-    getUsers,
-    getUserById,
+    dataCourse,
+    setDataCourse,
+    getCourses,
+    getCourseById,
   };
 };
 
-export default useFetchUser;
+export default useFetchCourse;

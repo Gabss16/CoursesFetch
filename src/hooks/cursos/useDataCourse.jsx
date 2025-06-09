@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { url } from "../../utils/apiUrl"; // URL de la API
+import { url } from "../../utils/apiUrl"; // URL de la API de cursos
 import { toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import useFetchUser from "../../hooks/users/useFetchUser";
+import useFetchCourse from "../../hooks/cursos/useFetchCourse"; // Cambiar al nuevo hook
 
-const useDataUser = (methods) => {
-  const [dataUser, setDataUser] = useState([]);
-  const { getUserById, getUsers } = useFetchUser();
+const useDataCourse = (methods) => {
+  const [dataCourse, setDataCourse] = useState([]);
+  const { getCourseById, getCourses } = useFetchCourse();
   const { id } = useParams();
 
   const {
@@ -18,11 +18,9 @@ const useDataUser = (methods) => {
 
   const navigate = useNavigate();
 
-  // save user form
-  // funcion para guardar el formulario de usuario y enviar los datos a la API
-  const saveUserForm = async (dataForm) => {
+  // Guardar curso (POST)
+  const saveCourseForm = async (dataForm) => {
     try {
-      // enviar la solicitud POST a la API
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -31,24 +29,21 @@ const useDataUser = (methods) => {
         body: JSON.stringify(dataForm),
       });
       if (!response.ok) {
-        toast.error("Failed to add user");
-        throw new Error("Failed to add user");
+        toast.error("No se pudo agregar el curso");
+        throw new Error("Failed to add course");
       }
-      toast.success("User saved successfully");
-      navigate("/home"); // Redirigir a la página de inicio después de guardar
+      toast.success("Curso guardado exitosamente");
+      navigate("/home");
     } catch (error) {
-      console.log("Error al  enviado:", error);
+      console.log("Error al guardar curso:", error);
     } finally {
-      reset(); // reiniciar el formulario después de enviar
-      getUsers(); // obtener la lista actualizada de usuarios
+      reset();
+      getCourses(); // Refrescar lista de cursos
     }
   };
 
-  // Función para editar un usuario
-  // Esta función se llama cuando se envía el formulario de edición
-  // y envía una solicitud PUT a la API para actualizar los datos del usuario
-
-  const editUser = async (dataForm) => {
+  // Editar curso (PUT)
+  const editCourse = async (dataForm) => {
     try {
       const response = await fetch(`${url}/${id}`, {
         method: "PUT",
@@ -58,72 +53,63 @@ const useDataUser = (methods) => {
         body: JSON.stringify(dataForm),
       });
       if (!response.ok) {
-        toast.error("Failed to update user");
-        throw new Error("Failed to update user");
+        toast.error("No se pudo actualizar el curso");
+        throw new Error("Failed to update course");
       }
-      toast.success("User updated successfully");
-      navigate("/home"); // Redirect to home after updating
+      toast.success("Curso actualizado exitosamente");
+      navigate("/home");
     } catch (error) {
-      console.error("Error updating user:", error);
-      toast.error("Failed to update user");
+      console.error("Error al actualizar curso:", error);
     } finally {
-      reset(); // Reset the form after submission
-      getUsers(); // Refresh the user list after updating
+      reset();
+      getCourses();
     }
   };
 
-  // Esta función se llama cuando se envía el formulario
-  // y decide si guardar un nuevo usuario o editar uno existente
-  // dependiendo de si hay un id presente en los parámetros de la URL
-  // Si hay un id, se llama a editUser, de lo contrario se llama a saveUserForm
-
-  const handleUserAction = (dataForm) => {
+  // Decidir si guardar o editar curso
+  const handleCourseAction = (dataForm) => {
     if (id) {
-      editUser(dataForm);
+      editCourse(dataForm);
     } else {
-      saveUserForm(dataForm);
+      saveCourseForm(dataForm);
     }
   };
 
-  // Función para manejar la actualización de un usuario
-  // Esta función se llama cuando se hace clic en el botón de editar
-  // y redirige al usuario a la página de edición del usuario
-  // pasando el id del usuario como parámetro en la URL
-  const handleUpdateUser = (id) => {
-    navigate(`/users/${id}`);
+  // Redirigir a edición
+  const handleUpdateCourse = (id) => {
+    navigate(`/courses/${id}`);
   };
 
-  // Cargar los datos del usuario por id
-  // Esta función se llama para obtener los datos del usuario cuando el componente se monta o cuando cambia el id
-  const loadUser = async () => {
+  // Cargar curso por id
+  const loadCourse = async () => {
     if (id) {
-      const user = await getUserById(id);
-      if (user) {
+      const course = await getCourseById(id);
+      if (course) {
         reset({
-          nombre: user?.nombre,
-          apellido: user?.apellido,
-          correo: user?.correo,
-          especialidad: user?.especialidad,
+          curso: course?.curso,
+          tematica: course?.tematica,
+          instructor: course?.instructor,
+          descripcion: course?.descripcion,
         });
       }
     }
   };
 
-  // useEffect para cargar los datos del usuario cuando el componente se monta o cuando cambia el id
   useEffect(() => {
-    loadUser();
-  }, [id]); // Dependencia en id para recargar los datos si cambia
+    loadCourse();
+  }, [id]);
 
   return {
-    dataUser,
-    setDataUser,
+    dataCourse,
+    setDataCourse,
     register,
-    handleSubmit: handleSubmit(handleUserAction),
+    handleSubmit: handleSubmit(handleCourseAction),
     errors,
-    getUserById,
-    handleUpdateUser,
-    loadUser,
+    getCourseById,
+    handleUpdateCourse,
+    loadCourse,
+    reset,
   };
 };
 
-export default useDataUser;
+export default useDataCourse;

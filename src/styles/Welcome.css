@@ -1,0 +1,142 @@
+
+.welcome-container {
+    position: relative;
+    height: 100vh;
+    background: linear-gradient(135deg, #e0e0f7, #cfc6f0, #f7f5fd);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #2b2a3a;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Fondo con luceesseseesse */
+  .lights-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+    overflow: visible;
+    z-index: 0;
+  }
+  
+
+  .light {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+    opacity: 0.5;
+    animation-name: floatLights;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+  
+  /* Animación  */
+  @keyframes floatLights {
+    0%, 100% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-15px) translateX(10px) scale(1.1);
+      opacity: 0.8;
+    }
+  }
+  
+  /* Figuras geométricas  */
+  .shape {
+    position: absolute;
+    opacity: 0.15;
+    filter: drop-shadow(0 0 4px rgba(29, 3, 53, 0.5));
+    animation-name: slowRotate;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  
+ 
+  .shape.circle {
+    border-radius: 50%;
+    background: #040427;
+  }
+  
+  
+  .shape.triangle {
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 60px solid #211a30;
+    background: transparent;
+    filter: drop-shadow(0 0 4px rgba(30, 150, 130, 0.3));
+    animation-name: slowRotateTriangle;
+  }
+  
+  
+  @keyframes slowRotate {
+    from { transform: rotate(0deg) translateY(0); }
+    to { transform: rotate(360deg) translateY(0); }
+  }
+  
+  
+  @keyframes slowRotateTriangle {
+    0% { transform: rotate(0deg) translateY(0); }
+    50% { transform: rotate(180deg) translateY(5px); }
+    100% { transform: rotate(360deg) translateY(0); }
+  }
+  
+  
+  .welcome-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 600px;
+    padding: 20px;
+  }
+  
+  
+  .soft-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #060f29;
+    text-shadow:
+      0 0 8px #7b82a1,
+      0 0 20px #7b82a1;
+    margin-bottom: 0.5em;
+  }
+  
+  
+  .subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2em;
+    color: #050505;
+    text-shadow: 0 0 5px #e7eeec;
+  }
+  
+
+  .glow-button {
+    font-size: 1.2rem;
+    padding: 0.8em 2.5em;
+    border: none;
+    border-radius: 50px;
+    background: #32315f;
+    color: white;
+    cursor: pointer;
+    box-shadow:
+      0 0 8px #0b3346,
+      0 0 20px #0b3346;
+    transition: all 0.3s ease-in-out;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    user-select: none;
+  }
+  
+  .glow-button:hover {
+    background: #2a2961;
+    box-shadow:
+      0 0 15px #2a2961,
+      0 0 30px #2a2961;
+    transform: scale(1.1);
+  }
+  

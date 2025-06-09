@@ -1,66 +1,159 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import Titulo from "../components/Titulos";
 import Button from "../components/Button";
-import { optionSelect } from "../utils/apiUrl";
-import useFetchUser from "../hooks/cursos/useFetchCourse";
-import useUserAction from "../hooks/cursos/useUserCourse";
 import ButtonDelete from "../components/ButtonDelete";
+import InputText from "../components/InputText";
+import SelectInput from "../components/SelectInput";
+import { optionSelect } from "../utils/apiUrl";
 
-const Home = () => {
-  const { dataUser, getUsers } = useFetchUser();
-  const { deleteUser, handleUpdateUser } = useUserAction(getUsers);
+import useFetchCourse from "../hooks/cursos/useFetchCourse";
+import useCourseAction from "../hooks/cursos/useCourseAction";
+
+const CoursesDashboard = () => {
+  const { dataCourse, getCourses } = useFetchCourse();
+  const { deleteCourse, createCourse, updateCourse } = useCourseAction(getCourses);
+  const methods = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = methods;
+
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  useEffect(() => {
+    if (selectedCourse) {
+      reset({
+        curso: selectedCourse.curso,
+        tematica: selectedCourse.tematica,
+        instructor: selectedCourse.instructor,
+        descripcion: selectedCourse.descripcion
+      });
+    } else {
+      reset({
+        curso: "",
+        tematica: "",
+        instructor: "",
+        descripcion: ""
+      });
+    }
+  }, [selectedCourse, reset]);
+
+  const onSubmit = (data) => {
+    if (selectedCourse) {
+      updateCourse(selectedCourse.id, data);
+    } else {
+      createCourse(data);
+    }
+
+    setSelectedCourse(null);
+    reset();
+  };
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link
-        to="/users"
-        className="text-2xl font-bold text-gray-900 mb-4 bg-green-400 p-2 rounded w-full text-center hover:bg-green-200 transition-colors block mb-6"
-      >
-        Agregar usuario
-      </Link>
+    <div className="flex flex-col lg:flex-row max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
 
-      <Titulo titulo="User Information" />
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-          <thead className="bg-gray-100 text-gray-700 text-left text-sm">
-            <tr>
-              <th className="px-4 py-2 border-b">Nombre</th>
-              <th className="px-4 py-2 border-b">Apellido</th>
-              <th className="px-4 py-2 border-b">Email</th>
-              <th className="px-4 py-2 border-b">Especialidad</th>
-              <th className="px-4 py-2 border-b">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dataUser?.map((user) => (
-              <tr
-                key={user.id}
-                className="border-b hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-4 py-2">{user.nombre}</td>
-                <td className="px-4 py-2">{user.apellido}</td>
-                <td className="px-4 py-2">{user.correo}</td>
-                <td className="px-4 py-2">
-                  {optionSelect.find((opt) => opt.value === user.especialidad)
-                    ?.label || "Sin asignar"}
-                </td>
-                <td className="px-4 py-2 flex gap-2">
-                  <Button
-                    text="Editar"
-                    onClick={() => handleUpdateUser(user.id)}
-                  />
-
-                  <ButtonDelete
-                    text="Eliminar"
-                    onClick={() => deleteUser(user.id)}
-                  />
-                </td>
+      {/* Tabla de cursos */}
+      <div className="w-full lg:w-[70%]">
+        <Titulo titulo="Listado de Cursos" />
+        <div className="overflow-x-auto bg-white rounded shadow">
+          <table className="min-w-full text-sm text-gray-700">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="px-4 py-2 border-b">Nombre del Curso</th>
+                <th className="px-4 py-2 border-b">Temática</th>
+                <th className="px-4 py-2 border-b">Instructor</th>
+                <th className="px-4 py-2 border-b">Descripción</th>
+                <th className="px-4 py-2 border-b">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {dataCourse.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-4">
+                    No hay cursos disponibles.
+                  </td>
+                </tr>
+              ) : (
+                dataCourse.map((curso) => (
+                  <tr
+                    key={curso.id}
+                    className="border-b hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-2">{curso.curso}</td>
+                    <td className="px-4 py-2">{curso.tematica}</td>
+                    <td className="px-4 py-2">{curso.instructor}</td>
+                    <td className="px-4 py-2">{curso.descripcion}</td>
+                    <td className="px-4 py-2 flex gap-2 flex-wrap">
+                      <Button
+                        text="Editar"
+                        onClick={() => setSelectedCourse(curso)}
+                      />
+                      <ButtonDelete
+                        text="Eliminar"
+                        onClick={() => deleteCourse(curso.id)}
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Formulario */}
+      <div className="w-full lg:w-[30%] bg-white rounded shadow p-6">
+        <Titulo titulo={selectedCourse ? "Editar Curso" : "Agregar Curso"} />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
+          <InputText
+            type="text"
+            name="curso"
+            label="Nombre del Curso"
+            placeholder="Ej: React Básico"
+            register={register}
+            error={errors.curso?.message}
+          />
+
+          <SelectInput
+            label="Temática"
+            name="tematica"
+            options={optionSelect}
+            register={register}
+            error={errors.tematica?.message}
+          />
+
+          <InputText
+            type="text"
+            name="instructor"
+            label="Instructor"
+            placeholder="Nombre del instructor"
+            register={register}
+            error={errors.instructor?.message}
+          />
+
+          <InputText
+            type="text"
+            name="descripcion"
+            label="Descripción"
+            placeholder="Breve descripción del curso"
+            register={register}
+            error={errors.descripcion?.message}
+          />
+
+          <div className="flex gap-4">
+            <Button type="submit" text={selectedCourse ? "Actualizar" : "Guardar"} />
+            {selectedCourse && (
+              <button
+                type="button"
+                onClick={() => setSelectedCourse(null)}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default Home;
+export default CoursesDashboard;
